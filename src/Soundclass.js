@@ -6,6 +6,11 @@ import clickmp3 from './audio/sound1.mp3'
 import song from './audio/Tunnel.ogg'
 import intro from './audio/TunnelO.ogg'
 import hand from './images/download.png'
+import mad1 from './images/mad/mad1.png'
+import mad2 from './images/mad/mad2.png'
+import hap1 from './images/hap/hap1.png'
+import hap2 from './images/hap/hap2.png'
+import hap3 from './images/hap/hap3.png'
 import wNoise from './audio/wnoise.mp3'
 
 let isBeingPress;
