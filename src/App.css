@@ -3,8 +3,9 @@
 }
 
 .App-logo {
-  height: 40vmin;
+  height: 10vmin;
   pointer-events: none;
+  z-index: 1;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -26,6 +27,14 @@
 
 .App-link {
   color: #61dafb;
+}
+
+.App-success {
+  color: #00ff00;
+}
+
+.App-fail {
+  color: #ff0000;
 }
 
 @keyframes App-logo-spin {
