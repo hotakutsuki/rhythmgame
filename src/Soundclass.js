@@ -6,17 +6,23 @@ import clickmp3 from './audio/sound1.mp3'
 import song from './audio/Tunnel.ogg'
 import intro from './audio/TunnelO.ogg'
 import hand from './images/download.png'
+import wNoise from './audio/wnoise.mp3'
 
 let isBeingPress;
 
 let audio;
 let songAudio;
 let introAudio;
+let wNoiseAudio;
 const beatDuration = 588;
 const introAudioDuration = 8 * beatDuration
 let songPlayedTimes = 1;
 let startDate;
 let intervalGame;
+let timeToChange = 0;
+let debugMode = false;
+
+
 const initialState = {
   miliseg: 0,
   section: 0,
@@ -27,6 +33,7 @@ const initialState = {
   pressedState: 'red',
   readyForNextCycle: false,
   state: 'start',
+  inTunnel: true
 }
 
 function handleClick() {
@@ -54,10 +61,20 @@ export default class extends Component {
 
     introAudio = new Audio();
     introAudio.src = intro
+
+    wNoiseAudio = new Audio();
+    wNoiseAudio.src = wNoise
+    wNoiseAudio.volume = 0
+    wNoiseAudio.addEventListener('ended', function () {
+      wNoiseAudio.currentTime = 0;
+      this.play();
+    }, false);
+    // wNoiseAudio.togglePlay = wNoiseAudio.togglePlay.bind(this);
   }
 
 
   init() {
+    wNoiseAudio.play()
     this.setState(initialState)
     this.setState({ state: 'intro' })
     const startIntroDateDate = new Date()
@@ -101,7 +118,7 @@ export default class extends Component {
               })
             }
 
-            if (this.state.beatState === 'red' && !this.state.hasbeenpressed && this.state.section > 0) {
+            if (this.state.beatState === 'red' && !this.state.hasbeenpressed && this.state.section > 0 && !debugMode) {
               this.setState({
                 success: false,
                 playing: 'gameover'
@@ -119,6 +136,21 @@ export default class extends Component {
                 readyForNextCycle: false,
               })
             }
+
+            timeToChange--
+            if (timeToChange<=0){
+              if (this.state.inTunnel){
+                timeToChange = parseInt(Math.random() * 3500) + 500 //between .5 and 4 seconds
+                songAudio.volume = 1
+                wNoiseAudio.volume = 0
+              } else {
+                timeToChange = parseInt(Math.random() * 1500) + 100 //between .1 and 1.5 seconds
+                wNoiseAudio.volume = 0.01
+                songAudio.volume = 0.1
+              }
+              this.setState({inTunnel: !this.state.inTunnel})
+              console.log('timeToChange', timeToChange)
+            }
             this.setState(
               {
                 miliseg: delta,
@@ -134,6 +166,8 @@ export default class extends Component {
   showGameOver() {
     songAudio.pause()
     songAudio.currentTime = 0
+    wNoiseAudio.pause()
+    wNoiseAudio.currentTime = 0
     console.log(this.state.section)
     clearInterval(intervalGame)
     this.setState({
@@ -166,13 +200,15 @@ export default class extends Component {
             })
             break
           case 'red':
-            this.setState({
-              pressedState: 'red',
-              hasbeenpressed: false,
-              success: false,
-              state: 'gameover'
-            })
-            this.showGameOver()
+            if (!debugMode){
+              this.setState({
+                pressedState: 'red',
+                hasbeenpressed: false,
+                success: false,
+                state: 'gameover'
+              })
+              this.showGameOver()
+            }
             break
           default:
         }
@@ -201,6 +237,10 @@ export default class extends Component {
           <div className="App">
             <header className="App-header">
               <div className={this.state.success ? "App-success" : "App-fail"}>
+                <p>
+                state:
+                {this.state.inTunnel? 'in Tunnel' : 'landscape'}
+                </p>
                 {this.state.pressedState}
                 <span style={{
                   color: this.state.success ? this.state.pressedState === 'green' ? 'green' : 'yellow' : 'red'
