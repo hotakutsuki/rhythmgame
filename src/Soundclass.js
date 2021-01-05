@@ -5,14 +5,25 @@ import './Soundclass.css';
 import clickmp3 from './audio/sound1.mp3'
 import song from './audio/Tunnel.ogg'
 import intro from './audio/TunnelO.ogg'
+import wNoise from './audio/wnoise.mp3'
 import hand from './images/download.png'
 import mad1 from './images/mad/mad1.png'
 import mad2 from './images/mad/mad2.png'
 import hap1 from './images/hap/hap1.png'
 import hap2 from './images/hap/hap2.png'
 import hap3 from './images/hap/hap3.png'
-import wNoise from './audio/wnoise.mp3'
-
+import bgi1 from './images/backgrounds/1.jpg'
+import bgi2 from './images/backgrounds/2.jpeg'
+import bgi3 from './images/backgrounds/3.jpeg'
+import bgi4 from './images/backgrounds/4.jpeg'
+import bgi5 from './images/backgrounds/5.jpeg'
+import bgi6 from './images/backgrounds/6.jpeg'
+import bgi7 from './images/backgrounds/7.jpeg'
+import bgi8 from './images/backgrounds/8.jpeg'
+import bgi9 from './images/backgrounds/9.jpeg'
+import bgi10 from './images/backgrounds/10.jpg'
+import bgi11 from './images/backgrounds/11.jpg'
+import tunnel from './images/backgrounds/tunnel.jpg'
 let isBeingPress;
 
 let audio;
@@ -24,9 +35,15 @@ const introAudioDuration = 8 * beatDuration
 let songPlayedTimes = 1;
 let startDate;
 let intervalGame;
-let timeToChange = 0;
-let debugMode = false;
-
+let timeToChange = parseInt(Math.random() * 3500) + 500;
+let imageDuration = 100;
+let debugMode = true;
+let backgrounds = [bgi1, bgi2, bgi3, bgi4, bgi5, bgi6, bgi7, bgi8, bgi9, bgi10, bgi11]
+let choosenBackgroundImg = backgrounds[0]
+let hapImages = [hap1, hap2, hap3]
+let choosenHapIm = hapImages[0];
+let madImages = [mad1, mad2]
+let choosenMadIm = madImages[0];
 
 const initialState = {
   miliseg: 0,
@@ -35,10 +52,10 @@ const initialState = {
   success: true,
   hasbeenpressed: true,
   beatState: 'red',
-  pressedState: 'red',
+  pressedState: 'green',
   readyForNextCycle: false,
   state: 'start',
-  inTunnel: true
+  inTunnel: false
 }
 
 function handleClick() {
@@ -107,8 +124,8 @@ export default class extends Component {
             // }
             const presentDate = new Date()
             const delta = presentDate.getTime() - startDate.getTime()
-            if (this.state.miliseg % beatDuration < 100 || this.state.miliseg % beatDuration > beatDuration - 100) {
-              if (this.state.miliseg % beatDuration < 40 || this.state.miliseg % beatDuration > beatDuration - 40) {
+            if (this.state.miliseg % beatDuration < 120 || this.state.miliseg % beatDuration > beatDuration - 120) {
+              if (this.state.miliseg % beatDuration < 50 || this.state.miliseg % beatDuration > beatDuration - 50) {
                 this.setState({
                   beatState: 'green'
                 })
@@ -144,18 +161,27 @@ export default class extends Component {
 
             timeToChange--
             if (timeToChange<=0){
+              this.setState({inTunnel: !this.state.inTunnel})
               if (this.state.inTunnel){
-                timeToChange = parseInt(Math.random() * 3500) + 500 //between .5 and 4 seconds
-                songAudio.volume = 1
-                wNoiseAudio.volume = 0
-              } else {
                 timeToChange = parseInt(Math.random() * 1500) + 100 //between .1 and 1.5 seconds
                 wNoiseAudio.volume = 0.01
                 songAudio.volume = 0.1
+              } else {
+                choosenBackgroundImg = backgrounds[Math.floor(Math.random()*backgrounds.length)]
+                timeToChange = parseInt(Math.random() * 3500) + 500 //between .5 and 4 seconds
+                songAudio.volume = 1
+                wNoiseAudio.volume = 0
               }
-              this.setState({inTunnel: !this.state.inTunnel})
               console.log('timeToChange', timeToChange)
             }
+            
+            imageDuration--
+            if (imageDuration<=0){
+              imageDuration = 100
+              choosenHapIm = hapImages[Math.floor(Math.random()*hapImages.length)]
+              choosenMadIm = madImages[Math.floor(Math.random()*madImages.length)]
+            }
+
             this.setState(
               {
                 miliseg: delta,
@@ -221,6 +247,11 @@ export default class extends Component {
     }
   }
 
+  formatNumber = (num, size) => {
+    var s = "000000000" + num;
+    return s.substr(s.length-size);
+  }
+
   render() {
     switch (this.state.state) {
       case 'start':
@@ -239,27 +270,36 @@ export default class extends Component {
       case 'intro':
       case 'playing':
         return (
-          <div className="App">
-            <header className="App-header">
-              <div className={this.state.success ? "App-success" : "App-fail"}>
-                <p>
-                state:
-                {this.state.inTunnel? 'in Tunnel' : 'landscape'}
-                </p>
-                {this.state.pressedState}
-                <span style={{
-                  color: this.state.success ? this.state.pressedState === 'green' ? 'green' : 'yellow' : 'red'
-                }}>
-                  <h1> {this.state.success ? this.state.pressedState === 'green' ? "GREAT!" : "OK" : "FAIL"} </h1>
-                </span>
-              </div>
-              <svg width="100" height="100">
-                <circle cx="50" cy="50" r="40" fill={this.state.beatState} />
-              </svg><br />
-              <br />metros: {this.state.miliseg}
-              <br />beats: {this.state.section}
-            </header>
-          </div >
+          <span>
+            <img src={choosenBackgroundImg} className="background-image" alt="logo" />
+            {this.state.inTunnel
+              ? <img src={tunnel} className="background-tunnel" alt="logo" />
+              : <div/>}
+            {this.state.pressedState === 'green'
+              ? <img src={choosenHapIm} className="full-screen-image" alt="logo" />
+              : <img src={choosenMadIm} className="full-screen-image" alt="logo" />}
+            <div className="canvas">
+                Distance: {this.formatNumber(this.state.miliseg, 10)} m &nbsp; 
+                {this.state.beatState === 'green'
+                ? <svg width="16" height="16"> <circle cx="8" cy="8" r="8" fill={this.state.beatState} /> </svg>
+                : <svg width="16" height="16"> <circle cx="8" cy="8" r="8" fill={'pink'} /> </svg>} 
+            </div >
+            <div className="canvas-background">
+              <svg width="500" height="50" fill={'pink'}>
+                <rect x="0" y="0" rx="20" ry="20" width="500" height="50" />
+              </svg>
+            </div>
+                {/* <br />beats: {this.state.section} */}
+                <div className={this.state.success ? "App-success" : "App-fail"}>
+                    {/* state: */}
+                    {/* {this.state.inTunnel? 'in Tunnel' : 'landscape'} */}
+                  {/* {this.state.pressedState} */}
+                  {/* <span style={{
+                    color: this.state.success ? this.state.pressedState === 'green' ? 'green' : 'yellow' : 'red'}}>
+                    <h1> {this.state.success ? this.state.pressedState === 'green' ? "GREAT!" : "OK" : "FAIL"} </h1>
+                  </span> */}
+                </div>
+          </span>
         )
       case 'gameover':
         return (

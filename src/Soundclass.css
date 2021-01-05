@@ -7,6 +7,49 @@
   pointer-events: none;
 }
 
+.full-screen-image {
+  position: absolute;
+  max-height: 100%;
+  height: auto;
+  z-index: 3;
+  flex: 1;
+}
+
+.background-image {
+  position: absolute;
+  z-index: 1;
+  height: 65%;
+  bottom: 35%;
+}
+
+.background-tunnel {
+  position: absolute;
+  z-index: 2;
+  height: 100%;
+}
+
+.canvas {
+  position: absolute;
+  z-index: 8;
+  font-size: calc(10px + 2vmin);
+  color: white;
+  font-family: "Lucida Console", "Courier New", monospace;
+  font-weight: bold;
+  top: 3%;
+  left: 50%;
+  transform: translate(-50%, 0);
+  flex-direction: row;
+}
+
+.canvas-background {
+  position: absolute;
+  z-index: 7;
+  font-size: calc(10px + 2vmin);
+  top: 2%;
+  left: 50%;
+  transform: translate(-50%, 0);
+}
+
 .hand1 {
   height: 10vmin;
   pointer-events: none;
@@ -23,6 +66,12 @@
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
     animation: App-logo-spin infinite 20s linear;
+  }
+  .background-image {
+    animation: Pan-image infinite 20s linear;
+  }
+  .background-tunnel {
+    animation: Pan-image-tunnel infinite 4s linear;
   }
 }
 
@@ -47,5 +96,23 @@
   }
   to {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes Pan-image {
+  from {
+    transform: translate(0,0);
+  }
+  to {
+    transform: translate(-30%,0);
+  }
+}
+
+@keyframes Pan-image-tunnel {
+  from {
+    transform: translate(100%,0);
+  }
+  to {
+    transform: translate(-100%,0);
   }
 }
