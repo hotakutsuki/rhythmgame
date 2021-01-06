@@ -1,5 +1,3 @@
-///multiples audios
-
 import React, { Component } from "react"
 import './Soundclass.css';
 import clickmp3 from './audio/sound1.mp3'
@@ -23,7 +21,7 @@ import bgi8 from './images/backgrounds/8.jpeg'
 import bgi9 from './images/backgrounds/9.jpeg'
 import bgi10 from './images/backgrounds/10.jpg'
 import bgi11 from './images/backgrounds/11.jpg'
-import tunnel from './images/backgrounds/tunnel.jpg'
+import tunnel from './images/tunnel.png'
 let isBeingPress;
 
 let audio;
@@ -35,15 +33,32 @@ const introAudioDuration = 8 * beatDuration
 let songPlayedTimes = 1;
 let startDate;
 let intervalGame;
-let timeToChange = parseInt(Math.random() * 3500) + 500;
-let imageDuration = 100;
+let timeToCheckpoint// = parseInt(Math.random() * 3500) + 500;
 let debugMode = true;
 let backgrounds = [bgi1, bgi2, bgi3, bgi4, bgi5, bgi6, bgi7, bgi8, bgi9, bgi10, bgi11]
-let choosenBackgroundImg = backgrounds[0]
+let choosenBackgroundImg = backgrounds[1]
 let hapImages = [hap1, hap2, hap3]
 let choosenHapIm = hapImages[0];
 let madImages = [mad1, mad2]
 let choosenMadIm = madImages[0];
+let brigthness=''
+// var moveImageKeyframes = keyframes`
+//     0% { transform: translate(0,0); }
+//     100% { transform: translate(-30%,0); }
+// `;
+
+// const BackgroundImage = styled.img`
+//   animation: ${moveImageKeyframes} 16s linear infinite;
+// `
+
+// var tunnelKeyFrames = keyframes`
+//     0% { transform: translate(20%,0); }
+//     100% { transform: translate(-100%,0); }
+// `;
+
+// let TunnelBackgroundImage = styled.img`
+//   animation: ${tunnelKeyFrames} ${timeToCheckpoint+200}ms linear;
+// `
 
 const initialState = {
   miliseg: 0,
@@ -91,7 +106,6 @@ export default class extends Component {
       wNoiseAudio.currentTime = 0;
       this.play();
     }, false);
-    // wNoiseAudio.togglePlay = wNoiseAudio.togglePlay.bind(this);
   }
 
 
@@ -159,29 +173,6 @@ export default class extends Component {
               })
             }
 
-            timeToChange--
-            if (timeToChange<=0){
-              this.setState({inTunnel: !this.state.inTunnel})
-              if (this.state.inTunnel){
-                timeToChange = parseInt(Math.random() * 1500) + 100 //between .1 and 1.5 seconds
-                wNoiseAudio.volume = 0.01
-                songAudio.volume = 0.1
-              } else {
-                choosenBackgroundImg = backgrounds[Math.floor(Math.random()*backgrounds.length)]
-                timeToChange = parseInt(Math.random() * 3500) + 500 //between .5 and 4 seconds
-                songAudio.volume = 1
-                wNoiseAudio.volume = 0
-              }
-              console.log('timeToChange', timeToChange)
-            }
-            
-            imageDuration--
-            if (imageDuration<=0){
-              imageDuration = 100
-              choosenHapIm = hapImages[Math.floor(Math.random()*hapImages.length)]
-              choosenMadIm = madImages[Math.floor(Math.random()*madImages.length)]
-            }
-
             this.setState(
               {
                 miliseg: delta,
@@ -192,6 +183,51 @@ export default class extends Component {
         })
       }, introDelay)
     })
+
+    this.loopTunnel()
+
+    setInterval(() => {
+      choosenHapIm = hapImages[Math.floor(Math.random()*hapImages.length)]
+      choosenMadIm = madImages[Math.floor(Math.random()*madImages.length)]
+    }, 250);
+  }
+
+  loopTunnel(){
+    timeToCheckpoint = parseInt(Math.random() * 16000) + 2000
+    setTimeout(() => {
+      timeToCheckpoint = parseInt(Math.random() * 4500) + 1000
+      console.log('timeToCheckpoint',timeToCheckpoint)
+      this.setState({inTunnel: true})
+      // var element = document.getElementById("tunnelBackgroundimage")
+      // var newElm = element.cloneNode(true)
+      // element.parentNode.replaceChild(newElm, element);
+      // console.log(element)
+      setTimeout(() => {
+        wNoiseAudio.volume = 0.03
+        songAudio.volume = 0.2
+        brigthness='-dark'
+        setTimeout(() => {
+          setTimeout(() => {
+            this.reloadBackgroundAnimation()  
+          }, 100);
+        }, timeToCheckpoint*.85);
+        setTimeout(() => {
+          this.setState({inTunnel: false})
+          songAudio.volume = 1
+          wNoiseAudio.volume = 0
+          brigthness=''
+          this.loopTunnel()
+        }, timeToCheckpoint);
+      }, 300);
+    }, timeToCheckpoint)
+  }
+
+  reloadBackgroundAnimation(){
+    var element = document.getElementById("backgroundimage");
+    var newElm = element.cloneNode(true)
+    choosenBackgroundImg = backgrounds[Math.floor(Math.random()*backgrounds.length)]
+    newElm.src = choosenBackgroundImg
+    element.parentNode.replaceChild(newElm, element);
   }
 
   showGameOver() {
@@ -271,13 +307,15 @@ export default class extends Component {
       case 'playing':
         return (
           <span>
-            <img src={choosenBackgroundImg} className="background-image" alt="logo" />
-            {this.state.inTunnel
-              ? <img src={tunnel} className="background-tunnel" alt="logo" />
+            <img id='backgroundimage' src={choosenBackgroundImg} className="background-image" alt="logo"/>
+              {/* <BackgroundImage id='backgroundimage' src={choosenBackgroundImg} className="background-image"/> */}
+              {this.state.inTunnel
+              ? <img src={tunnel} className="background-tunnel" style={{animationDuration: timeToCheckpoint+300+"ms"}} alt="logo"/>
+              // <TunnelBackgroundImage id='tunnelBackgroundimage' src={tunnel} className="background-tunnel"/>
               : <div/>}
             {this.state.pressedState === 'green'
-              ? <img src={choosenHapIm} className="full-screen-image" alt="logo" />
-              : <img src={choosenMadIm} className="full-screen-image" alt="logo" />}
+              ? <img src={choosenHapIm} className={`full-screen-image${brigthness}`}  alt="logo" />
+              : <img src={choosenMadIm} className={`full-screen-image${brigthness}`} alt="logo" />}
             <div className="canvas">
                 Distance: {this.formatNumber(this.state.miliseg, 10)} m &nbsp; 
                 {this.state.beatState === 'green'
