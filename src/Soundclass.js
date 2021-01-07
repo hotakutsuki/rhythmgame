@@ -4,7 +4,10 @@ import clickmp3 from './audio/sound1.mp3'
 import song from './audio/Tunnel.ogg'
 import intro from './audio/TunnelO.ogg'
 import wNoise from './audio/wnoise.mp3'
-import hand from './images/download.png'
+import playIcon from './images/playicon.png'
+import restartIcon from './images/restarticon.png'
+import scoreIcon from './images/scoreicon.png'
+import sendIcon from './images/sendicon.png'
 import mad1 from './images/mad/mad1.png'
 import mad2 from './images/mad/mad2.png'
 import hap1 from './images/hap/hap1.png'
@@ -21,6 +24,8 @@ import bgi8 from './images/backgrounds/8.jpeg'
 import bgi9 from './images/backgrounds/9.jpeg'
 import bgi10 from './images/backgrounds/10.jpg'
 import bgi11 from './images/backgrounds/11.jpg'
+import gameover from './images/gameover.png'
+import gameoverText from './images/gameovericon.png'
 import tunnel from './images/tunnel.png'
 let isBeingPress;
 
@@ -33,8 +38,10 @@ const introAudioDuration = 8 * beatDuration
 let songPlayedTimes = 1;
 let startDate;
 let intervalGame;
+let intervalImage;
+let tunnelTimeout;
 let timeToCheckpoint// = parseInt(Math.random() * 3500) + 500;
-let debugMode = true;
+let debugMode = false;
 let backgrounds = [bgi1, bgi2, bgi3, bgi4, bgi5, bgi6, bgi7, bgi8, bgi9, bgi10, bgi11]
 let choosenBackgroundImg = backgrounds[1]
 let hapImages = [hap1, hap2, hap3]
@@ -77,6 +84,9 @@ function handleClick() {
   introAudio.play().then(() => {
     window.helloComponent.init();
   })
+  songAudio.volume = 1
+  wNoiseAudio.volume = 0
+  brigthness=''
 }
 
 export default class extends Component {
@@ -124,6 +134,12 @@ export default class extends Component {
       //play at the time
       setTimeout(() => {
         songAudio.play().then(() => {
+          this.loopTunnel()
+          intervalImage = setInterval(() => {
+            choosenHapIm = hapImages[Math.floor(Math.random()*hapImages.length)]
+            choosenMadIm = madImages[Math.floor(Math.random()*madImages.length)]
+          }, 250);
+
           this.setState({ state: 'playing' })
           startDate = new Date()
           console.log('start time:', startDate.getTime())
@@ -183,18 +199,11 @@ export default class extends Component {
         })
       }, introDelay)
     })
-
-    this.loopTunnel()
-
-    setInterval(() => {
-      choosenHapIm = hapImages[Math.floor(Math.random()*hapImages.length)]
-      choosenMadIm = madImages[Math.floor(Math.random()*madImages.length)]
-    }, 250);
   }
 
   loopTunnel(){
     timeToCheckpoint = parseInt(Math.random() * 16000) + 2000
-    setTimeout(() => {
+    tunnelTimeout = setTimeout(() => {
       timeToCheckpoint = parseInt(Math.random() * 4500) + 1000
       console.log('timeToCheckpoint',timeToCheckpoint)
       this.setState({inTunnel: true})
@@ -202,16 +211,16 @@ export default class extends Component {
       // var newElm = element.cloneNode(true)
       // element.parentNode.replaceChild(newElm, element);
       // console.log(element)
-      setTimeout(() => {
+      tunnelTimeout = setTimeout(() => {
         wNoiseAudio.volume = 0.03
         songAudio.volume = 0.2
         brigthness='-dark'
-        setTimeout(() => {
-          setTimeout(() => {
+        tunnelTimeout = setTimeout(() => {
+          tunnelTimeout = setTimeout(() => {
             this.reloadBackgroundAnimation()  
           }, 100);
         }, timeToCheckpoint*.85);
-        setTimeout(() => {
+        tunnelTimeout = setTimeout(() => {
           this.setState({inTunnel: false})
           songAudio.volume = 1
           wNoiseAudio.volume = 0
@@ -224,10 +233,12 @@ export default class extends Component {
 
   reloadBackgroundAnimation(){
     var element = document.getElementById("backgroundimage");
-    var newElm = element.cloneNode(true)
-    choosenBackgroundImg = backgrounds[Math.floor(Math.random()*backgrounds.length)]
-    newElm.src = choosenBackgroundImg
-    element.parentNode.replaceChild(newElm, element);
+    if (element!=null){
+      var newElm = element.cloneNode(true)
+      choosenBackgroundImg = backgrounds[Math.floor(Math.random()*backgrounds.length)]
+      newElm.src = choosenBackgroundImg
+      element.parentNode.replaceChild(newElm, element);
+    }
   }
 
   showGameOver() {
@@ -237,6 +248,8 @@ export default class extends Component {
     wNoiseAudio.currentTime = 0
     console.log(this.state.section)
     clearInterval(intervalGame)
+    clearInterval(intervalImage)
+    clearTimeout(tunnelTimeout)
     this.setState({
       state: 'gameover',
     })
@@ -292,16 +305,20 @@ export default class extends Component {
     switch (this.state.state) {
       case 'start':
         return (
-          <header className="App-header">
-            <div>
-              <img src={hand} border="0" className="hand1" alt="logo" />
-              <img src={hand} border="0" className="hand2" alt="logo" />
-            </div>
-            <button
-              onClick={() => handleClick()}>
-              Start!
-              </button>
-          </header>
+          <div className="App-header">
+            <span className="canvas-start-background" onClick={() => handleClick()}>
+              <svg width="300" height="150" fill={'#795548'}>
+                <rect x="0" y="0" rx="20" ry="20" width="300" height="150" />
+              </svg>
+              <img src={playIcon} className="canvas-button-icon" alt="logo"/>
+            </span>
+            <span className="canvas-score-background">
+              <svg width="300" height="150" fill={'#607d8b'}>
+                <rect x="0" y="0" rx="20" ry="20" width="300" height="150" />
+              </svg>
+              <img src={scoreIcon} className="canvas-button-icon" alt="logo"/>
+            </span>
+          </div>
         )
       case 'intro':
       case 'playing':
@@ -316,16 +333,17 @@ export default class extends Component {
             {this.state.pressedState === 'green'
               ? <img src={choosenHapIm} className={`full-screen-image${brigthness}`}  alt="logo" />
               : <img src={choosenMadIm} className={`full-screen-image${brigthness}`} alt="logo" />}
-            <div className="canvas">
+            <div className="App-background" style={{left: window.innerHeight*1.75}}/>
+            <div className="canvas-background">
+              <svg width="500" height="60" fill={'pink'}>
+                <rect x="0" y="0" rx="20" ry="20" width="500" height="60" />
+              </svg>
+              <div className="canvas">
                 Distance: {this.formatNumber(this.state.miliseg, 10)} m &nbsp; 
                 {this.state.beatState === 'green'
                 ? <svg width="16" height="16"> <circle cx="8" cy="8" r="8" fill={this.state.beatState} /> </svg>
                 : <svg width="16" height="16"> <circle cx="8" cy="8" r="8" fill={'pink'} /> </svg>} 
-            </div >
-            <div className="canvas-background">
-              <svg width="500" height="50" fill={'pink'}>
-                <rect x="0" y="0" rx="20" ry="20" width="500" height="50" />
-              </svg>
+              </div >
             </div>
                 {/* <br />beats: {this.state.section} */}
                 <div className={this.state.success ? "App-success" : "App-fail"}>
@@ -341,12 +359,41 @@ export default class extends Component {
         )
       case 'gameover':
         return (
-          <header className="App-header">
-            <button
-              onClick={() => handleClick()}>
-              Start!
-              </button>
-          </header>
+          <div>
+            <img src={gameoverText} className="gameover-image" alt="logo"/>
+            {this.state.inTunnel
+              ? <img src={tunnel} className="background-tunnel" alt="logo"/>
+              :<img src={choosenBackgroundImg} className="background-image-gameover" alt="logo"/>}
+            <img src={gameover} className={`full-screen-image${brigthness}`} alt="logo"/>
+            <div className="App-background" style={{left: window.innerHeight*1.75}}/>
+            <div className="final-score-background">
+              <svg width="350" height="80" fill={'#673ab7'}>
+                <rect x="0" y="0" rx="20" ry="20" width="350" height="80" />
+              </svg>
+              <div className="canvas">
+                Distance: {this.formatNumber(this.state.miliseg, 10)}m 
+              </div >
+            </div>
+            <div className="final-score-input-background">
+              <svg width="350" height="80" fill={'#8bc34a'}>
+                <rect x="0" y="0" rx="20" ry="20" width="350" height="80" />
+              </svg>
+              <input className='final-score-input' placeholder="Your name..." maxLength='11'/>
+              <img src={sendIcon} className='send-button-icon' alt="logo" onClick={() => handleClick()}/>
+            </div>
+            <span className="canvas-start-background" onClick={() => handleClick()}>
+              <svg width="350" height="150" fill={'#795548'}>
+                <rect x="0" y="0" rx="20" ry="20" width="300" height="150" />
+              </svg>
+              <img src={restartIcon} className="canvas-button-icon" alt="logo"/>
+            </span>
+            <span className="canvas-score-background">
+              <svg width="300" height="150" fill={'#607d8b'}>
+                <rect x="0" y="0" rx="20" ry="20" width="300" height="150" />
+              </svg>
+              <img src={scoreIcon} className="canvas-button-icon" alt="logo"/>
+            </span>
+          </div>
         )
       default:
         return null
