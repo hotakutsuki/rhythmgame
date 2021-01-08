@@ -418,21 +418,19 @@ export default class extends Component {
       case 'records':
         return (
           <div className="record-page">
-            <div style={{fontSize: 28}}>
+            <div style={{fontSize: 48}}>
               <table className="record-table">
-                <tr style={{fontSize: 50}}>
+                <tr style={{fontSize: 72}}>
                   <th>Players</th>
                   &nbsp;&nbsp;
-                  <th style={{width:500}}>Scores</th>
+                  <th>Scores</th>
                 </tr>
-                <br/>
-                <br/>
-                {this.state.records.map((record, idx) => {
+                {this.state.records.map((record) => {
                   return (
                   <tr>
                     <th >{record.name}</th>
-                    ...................................
-                    <th >{record.record}</th>
+                    &nbsp;&nbsp;.....................................................................&nbsp;&nbsp;
+                    <th >{this.formatNumber(record.record, 10)}</th>
                   </tr>
                   )}
                 )}

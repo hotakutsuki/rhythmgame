@@ -11,3 +11,8 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+@font-face {
+  font-family: 'PixelBoy';
+  src: local('PixelBoy'), url(./fonts/Pixeboy.ttf) format('truetype');
+}

@@ -159,13 +159,13 @@
   position: relative;
   background-color: #282c34;
   color: white;
-  font-family: "Lucida Console", "Courier New", monospace;
+  font-family: "PixelBoy";
   height: 100vh;
 }
 
 .record-table{
   position: absolute;
-  top: 5%;
+  top: 3%;
   left: 50%;
   transform: translate(-50%, 0);
 }
