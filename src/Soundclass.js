@@ -28,6 +28,8 @@ import bgi11 from './images/backgrounds/11.jpg'
 import gameover from './images/gameover.png'
 import gameoverText from './images/gameovericon.png'
 import homeIcon from './images/homeicon.png'
+import lhimage from './images/lh.png'
+import rhimage from './images/rh.png'
 import tunnel from './images/tunnel.png' 
 
 let isBeingPress;
@@ -266,6 +268,11 @@ export default class extends Component {
           default:
         }
       }
+      const element = document.getElementById('rightHand')
+      if (element !== null){
+        var newElm = element.cloneNode(true)
+        element.parentNode.replaceChild(newElm, element);
+      }
     }
   }
 
@@ -335,7 +342,10 @@ export default class extends Component {
             <div style={{fontSize: 18}}>
               watch out for the tunnels
             </div>
-            
+            <div className="hands">
+              <img src={lhimage} className="hand1" alt="logo"/>
+              <img id="rightHand" width='100' src={rhimage} className="hand2" alt="logo"/>
+            </div>
             <span className="canvas-start-background" onClick={this.restartGame}>
               <svg width="300" height="150" fill={'#795548'}>
                 <rect x="0" y="0" rx="20" ry="20" width="300" height="150" />
@@ -361,6 +371,10 @@ export default class extends Component {
             {this.state.pressedState === 'green'
               ? <img src={choosenHapIm} className={`full-screen-image${brigthness}`}  alt="logo" />
               : <img src={choosenMadIm} className={`full-screen-image${brigthness}`} alt="logo" />}
+            <div className="hands">
+              <img src={lhimage} className="hand1" alt="logo"/>
+              <img id="rightHand" src={rhimage} className="hand2" alt="logo"/>
+            </div>
             <div className="App-background" style={{left: window.innerHeight*1.75}}/>
             <div className="canvas-background">
               <svg width="500" height="60" fill={'pink'}>

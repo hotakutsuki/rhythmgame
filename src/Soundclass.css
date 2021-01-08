@@ -170,20 +170,26 @@
   transform: translate(-50%, 0);
 }
 
+.hands {
+  position: absolute;
+  bottom: 0%;
+  z-index: 6;
+  left: 35%;
+}
+
 .hand1 {
-  height: 10vmin;
-  pointer-events: none;
-  z-index: 1;
-  left: 500;
+  position: relative;
 }
 
 .hand2 {
-  height: 5vmin;
-  pointer-events: none;
-  z-index: 1;
+  position: relative;
+  left: 10%;
 }
 
 @media (prefers-reduced-motion: no-preference) {
+  .hand2 {
+    animation: hand-spin 250ms linear;
+  }
   .App-logo {
     animation: App-logo-spin infinite 20s linear;
   }
@@ -214,6 +220,15 @@
 
 .App-link {
   color: #61dafb;
+}
+
+@keyframes hand-spin {
+  from {
+    transform: rotate(-15deg) translate(-120%,-8%);
+  }
+  to {
+    transform: rotate(0deg) translate(0%,0);
+  }
 }
 
 @keyframes App-logo-spin {
