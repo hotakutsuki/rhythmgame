@@ -7,6 +7,154 @@
   pointer-events: none;
 }
 
+.full-screen-image {
+  position: absolute;
+  max-height: 100%;
+  height: auto;
+  z-index: 3;
+  flex: 1;
+}
+
+.full-screen-image-dark {
+  position: absolute;
+  max-height: 100%;
+  height: auto;
+  z-index: 3;
+  flex: 1;
+  filter: brightness(50%);
+}
+
+.background-image {
+  position: absolute;
+  z-index: 1;
+  height: 65%;
+  bottom: 35%;
+}
+
+.background-image-gameover {
+  position: absolute;
+  z-index: 1;
+  height: 65%;
+  bottom: 35%;
+}
+
+.gameover-image {
+  position: absolute;
+  z-index: 8;
+  max-height: 15%;
+  max-width: 100%;
+  left: 50%;
+  top: 5%;
+  transform: translate(-50%,0);
+}
+
+.background-tunnel {
+  position: absolute;
+  z-index: 2;
+  height: 100%;
+  filter: brightness(50%)
+}
+
+.canvas {
+  position: absolute;
+  z-index: 8;
+  font-size: calc(10px + 2vmin);
+  color: white;
+  font-family: "Lucida Console", "Courier New", monospace;
+  font-weight: bold;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-55%);
+  text-align: center;
+  flex-direction: row;
+  width: 100%;
+}
+
+.canvas-background {
+  position: absolute;
+  z-index: 7;
+  font-size: calc(10px + 2vmin);
+  top: 2%;
+  left: 50%;
+  transform: translate(-50%, 0);
+}
+
+.final-score-background {
+  position: absolute;
+  z-index: 7;
+  font-size: calc(10px + 2vmin);
+  top: 30%;
+  left: 60%;
+}
+
+.final-score-input {
+  position: absolute;
+  z-index: 7;
+  font-size: calc(20px + 2vmin);
+  width: 70%;
+  background-color:#8bc34a;
+  top: 50%;
+  left: 5%;
+  transform: translate(0%, -50%);
+}
+
+.final-score-input-background {
+  position: absolute;
+  z-index: 7;
+  font-size: calc(10px + 2vmin);
+  top: 50%;
+  left: 60%;
+  flex-direction: row;
+}
+
+.send-button-icon {
+  position: absolute;
+  z-index: 8;
+  max-width: 15%;
+  color: wheat;
+  right: 5%;
+  top:50%;
+  transform: translate(0%, -50%);
+  filter: brightness(500%)
+}
+
+.canvas-button-icon {
+  position: absolute;
+  z-index: 8;
+  top: 50%;
+  left: 50%;
+  width: 25%;
+  transform: translate(-50%, -50%);
+  color: wheat;
+  flex-direction: row;
+  filter: invert(100%)
+}
+
+.canvas-start-background {
+  position: absolute;
+  z-index: 7;
+  font-size: calc(10px + 2vmin);
+  top: 70%;
+  left: 20%;
+}
+
+.canvas-score-background {
+  position: absolute;
+  z-index: 7;
+  font-size: calc(10px + 2vmin);
+  top: 70%;
+  left: 20%;
+}
+
+.canvas-score-background {
+  position: absolute;
+  z-index: 7;
+  font-size: calc(10px + 2vmin);
+  top: 70%;
+  left: 70%;
+  transform: translate(-50%, 0);
+}
+
 .hand1 {
   height: 10vmin;
   pointer-events: none;
@@ -24,6 +172,12 @@
   .App-logo {
     animation: App-logo-spin infinite 20s linear;
   }
+  .background-image {
+    animation: Pan-image infinite 20s linear;
+  }
+  .background-tunnel {
+    animation: Pan-image-tunnel infinite linear;
+  }
 }
 
 .App-header {
@@ -37,6 +191,13 @@
   color: white;
 }
 
+.App-background {
+  position: relative;
+  min-height: 100vh;
+  z-index: 6;
+  background-color: #282c34;
+}
+
 .App-link {
   color: #61dafb;
 }
@@ -47,5 +208,23 @@
   }
   to {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes Pan-image {
+  from {
+    transform: translate(0,0);
+  }
+  to {
+    transform: translate(-30%,0);
+  }
+}
+
+@keyframes Pan-image-tunnel {
+  from {
+    transform: translate(20%,0);
+  }
+  to {
+    transform: translate(-100%,0);
   }
 }
