@@ -155,6 +155,21 @@
   transform: translate(-50%, 0);
 }
 
+.record-page {
+  position: relative;
+  background-color: #282c34;
+  color: white;
+  font-family: "Lucida Console", "Courier New", monospace;
+  height: 100vh;
+}
+
+.record-table{
+  position: absolute;
+  top: 5%;
+  left: 50%;
+  transform: translate(-50%, 0);
+}
+
 .hand1 {
   height: 10vmin;
   pointer-events: none;
@@ -187,7 +202,6 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
   color: white;
 }
 

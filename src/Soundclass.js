@@ -1,4 +1,5 @@
 import React, { Component } from "react"
+import firebase from './firebase.js' 
 import './Soundclass.css';
 import clickmp3 from './audio/sound1.mp3'
 import song from './audio/Tunnel.ogg'
@@ -26,9 +27,10 @@ import bgi10 from './images/backgrounds/10.jpg'
 import bgi11 from './images/backgrounds/11.jpg'
 import gameover from './images/gameover.png'
 import gameoverText from './images/gameovericon.png'
-import tunnel from './images/tunnel.png'
-let isBeingPress;
+import homeIcon from './images/homeicon.png'
+import tunnel from './images/tunnel.png' 
 
+let isBeingPress;
 let audio;
 let songAudio;
 let introAudio;
@@ -40,7 +42,7 @@ let startDate;
 let intervalGame;
 let intervalImage;
 let tunnelTimeout;
-let timeToCheckpoint// = parseInt(Math.random() * 3500) + 500;
+let timeToCheckpoint
 let debugMode = false;
 let backgrounds = [bgi1, bgi2, bgi3, bgi4, bgi5, bgi6, bgi7, bgi8, bgi9, bgi10, bgi11]
 let choosenBackgroundImg = backgrounds[1]
@@ -49,23 +51,7 @@ let choosenHapIm = hapImages[0];
 let madImages = [mad1, mad2]
 let choosenMadIm = madImages[0];
 let brigthness=''
-// var moveImageKeyframes = keyframes`
-//     0% { transform: translate(0,0); }
-//     100% { transform: translate(-30%,0); }
-// `;
-
-// const BackgroundImage = styled.img`
-//   animation: ${moveImageKeyframes} 16s linear infinite;
-// `
-
-// var tunnelKeyFrames = keyframes`
-//     0% { transform: translate(20%,0); }
-//     100% { transform: translate(-100%,0); }
-// `;
-
-// let TunnelBackgroundImage = styled.img`
-//   animation: ${tunnelKeyFrames} ${timeToCheckpoint+200}ms linear;
-// `
+let playerName
 
 const initialState = {
   miliseg: 0,
@@ -78,15 +64,6 @@ const initialState = {
   readyForNextCycle: false,
   state: 'start',
   inTunnel: false
-}
-
-function handleClick() {
-  introAudio.play().then(() => {
-    window.helloComponent.init();
-  })
-  songAudio.volume = 1
-  wNoiseAudio.volume = 0
-  brigthness=''
 }
 
 export default class extends Component {
@@ -207,10 +184,6 @@ export default class extends Component {
       timeToCheckpoint = parseInt(Math.random() * 4500) + 1000
       console.log('timeToCheckpoint',timeToCheckpoint)
       this.setState({inTunnel: true})
-      // var element = document.getElementById("tunnelBackgroundimage")
-      // var newElm = element.cloneNode(true)
-      // element.parentNode.replaceChild(newElm, element);
-      // console.log(element)
       tunnelTimeout = setTimeout(() => {
         wNoiseAudio.volume = 0.03
         songAudio.volume = 0.2
@@ -301,18 +274,75 @@ export default class extends Component {
     return s.substr(s.length-size);
   }
 
+  restartGame() {
+    introAudio.play().then(() => {
+      window.helloComponent.init();
+    })
+    songAudio.volume = 1
+    wNoiseAudio.volume = 0
+    brigthness=''
+  }
+  
+  saveRecord(record){
+    this.setState({
+      state: 'default'
+    })
+    const date = new Date()
+    firebase.firestore().collection("records").doc().set({
+      name: playerName || 'def',
+      record: record,
+      date: date.getTime()
+    }).then(() => {
+      this.showRecordsScreen();
+    }).catch((error) => {
+      this.showRecordsScreen()
+    });
+  }
+  
+  setName (name){
+    playerName = name
+  }
+
+  showRecordsScreen = () => {
+    this.setState({
+      state: 'default'
+    })
+    firebase.firestore().collection("records").orderBy("record", "desc").limit(10).get().then(querySnapshot => {
+      let recs = []
+      querySnapshot.docs.forEach(doc => {
+        recs.push(doc.data())
+      })
+      this.setState({
+        state: 'records',
+        records: recs
+      })
+    })
+  }
+
   render() {
     switch (this.state.state) {
       case 'start':
         return (
           <div className="App-header">
-            <span className="canvas-start-background" onClick={() => handleClick()}>
+            <div style={{fontSize: 48, marginTop: -200}}>
+              Keep up the pace!
+            </div>
+            <br/><br/>
+            <div style={{fontSize: 28}}>
+              Feel the music and use the <i><b>Space bar</b></i> to keep the beat for as long as you can
+            </div>
+            <br/><br/>
+            <div style={{fontSize: 18}}>
+              watch out for the tunnels
+            </div>
+            
+            <span className="canvas-start-background" onClick={this.restartGame}>
               <svg width="300" height="150" fill={'#795548'}>
                 <rect x="0" y="0" rx="20" ry="20" width="300" height="150" />
               </svg>
               <img src={playIcon} className="canvas-button-icon" alt="logo"/>
             </span>
-            <span className="canvas-score-background">
+            <span className="canvas-score-background" onClick={this.showRecordsScreen}>
               <svg width="300" height="150" fill={'#607d8b'}>
                 <rect x="0" y="0" rx="20" ry="20" width="300" height="150" />
               </svg>
@@ -325,10 +355,8 @@ export default class extends Component {
         return (
           <span>
             <img id='backgroundimage' src={choosenBackgroundImg} className="background-image" alt="logo"/>
-              {/* <BackgroundImage id='backgroundimage' src={choosenBackgroundImg} className="background-image"/> */}
               {this.state.inTunnel
               ? <img src={tunnel} className="background-tunnel" style={{animationDuration: timeToCheckpoint+300+"ms"}} alt="logo"/>
-              // <TunnelBackgroundImage id='tunnelBackgroundimage' src={tunnel} className="background-tunnel"/>
               : <div/>}
             {this.state.pressedState === 'green'
               ? <img src={choosenHapIm} className={`full-screen-image${brigthness}`}  alt="logo" />
@@ -345,15 +373,7 @@ export default class extends Component {
                 : <svg width="16" height="16"> <circle cx="8" cy="8" r="8" fill={'pink'} /> </svg>} 
               </div >
             </div>
-                {/* <br />beats: {this.state.section} */}
                 <div className={this.state.success ? "App-success" : "App-fail"}>
-                    {/* state: */}
-                    {/* {this.state.inTunnel? 'in Tunnel' : 'landscape'} */}
-                  {/* {this.state.pressedState} */}
-                  {/* <span style={{
-                    color: this.state.success ? this.state.pressedState === 'green' ? 'green' : 'yellow' : 'red'}}>
-                    <h1> {this.state.success ? this.state.pressedState === 'green' ? "GREAT!" : "OK" : "FAIL"} </h1>
-                  </span> */}
                 </div>
           </span>
         )
@@ -378,16 +398,16 @@ export default class extends Component {
               <svg width="350" height="80" fill={'#8bc34a'}>
                 <rect x="0" y="0" rx="20" ry="20" width="350" height="80" />
               </svg>
-              <input className='final-score-input' placeholder="Your name..." maxLength='11'/>
-              <img src={sendIcon} className='send-button-icon' alt="logo" onClick={() => handleClick()}/>
+              <input className='final-score-input' placeholder="Your name..." maxLength='11' onChange={name => this.setName(name.target.value)} />
+              <img src={sendIcon} className='send-button-icon' alt="logo" onClick={() => this.saveRecord(this.state.miliseg)}/>
             </div>
-            <span className="canvas-start-background" onClick={() => handleClick()}>
-              <svg width="350" height="150" fill={'#795548'}>
+            <span className="canvas-start-background" onClick={this.restartGame}>
+              <svg width="300" height="150" fill={'#795548'}>
                 <rect x="0" y="0" rx="20" ry="20" width="300" height="150" />
               </svg>
               <img src={restartIcon} className="canvas-button-icon" alt="logo"/>
             </span>
-            <span className="canvas-score-background">
+            <span className="canvas-score-background" onClick={this.showRecordsScreen}>
               <svg width="300" height="150" fill={'#607d8b'}>
                 <rect x="0" y="0" rx="20" ry="20" width="300" height="150" />
               </svg>
@@ -395,8 +415,49 @@ export default class extends Component {
             </span>
           </div>
         )
+      case 'records':
+        return (
+          <div className="record-page">
+            <div style={{fontSize: 28}}>
+              <table className="record-table">
+                <tr style={{fontSize: 50}}>
+                  <th>Players</th>
+                  &nbsp;&nbsp;
+                  <th style={{width:500}}>Scores</th>
+                </tr>
+                <br/>
+                <br/>
+                {this.state.records.map((record, idx) => {
+                  return (
+                  <tr>
+                    <th >{record.name}</th>
+                    ...................................
+                    <th >{record.record}</th>
+                  </tr>
+                  )}
+                )}
+              </table>
+            </div>
+            <span className="canvas-start-background" onClick={this.restartGame}>
+              <svg width="300" height="150" fill={'#795548'}>
+                <rect x="0" y="0" rx="20" ry="20" width="300" height="150" />
+              </svg>
+              <img src={playIcon} className="canvas-button-icon" alt="logo"/>
+            </span>
+            <span className="canvas-score-background" onClick={() => {this.setState({state:'start'})}}>
+              <svg width="300" height="150" fill={'#607d8b'}>
+                <rect x="0" y="0" rx="20" ry="20" width="300" height="150" />
+              </svg>
+              <img src={homeIcon} className="canvas-button-icon" alt="logo"/>
+            </span>
+          </div>
+        )
       default:
-        return null
+        return <div>
+          <div className="App-header">
+            Loading...
+          </div>
+        </div>
     }
   }
 }
